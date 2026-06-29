@@ -97,7 +97,7 @@ export const Chatbot: React.FC = () => {
       return "Banana is a yellow fruit, monkeys love them! 🍌 (Chuối là quả màu vàng, khỉ rất thích chuối!)";
     }
 
-    return "That's cool! 🧸 Let's learn more words! Ask me: 'How do you say con voi in English?' (Thú vị quá! Hãy cùng học thêm nhiều từ nhé! Cậu có thể hỏi tớ: 'How do you say con voi in English?') ";
+    return "I can only help you learn English! 🧸 Let's learn some English words! Ask me: 'How do you say con voi in English?' (Tớ chỉ có thể giúp cậu học tiếng Anh thôi! Hãy cùng học từ vựng nhé! Cậu có thể hỏi tớ: 'How do you say con voi in English?') ";
   };
 
   const handleSend = async (textToSend: string) => {

@@ -14,6 +14,7 @@ export class GeminiService implements AIService {
       throw new Error("Missing Gemini API Key");
     }
 
+    // Sửa thành dòng này:
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
 
     // Format history for Gemini API
