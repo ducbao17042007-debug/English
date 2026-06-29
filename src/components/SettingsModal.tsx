@@ -15,12 +15,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, o
   const [selectedVoice, setSelectedVoice] = useState<string>('');
 
   useEffect(() => {
+    // Check environment variables
+    const envGeminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const envOpenAIKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const hasEnvGemini = envGeminiKey && envGeminiKey !== 'your_gemini_api_key_here';
+    const hasEnvOpenAI = envOpenAIKey && envOpenAIKey !== 'your_openai_api_key_here';
+
     // Load saved settings
-    const savedProvider = localStorage.getItem('ai_provider') || 'gemini';
+    const savedProvider = localStorage.getItem('ai_provider') || 
+                          (hasEnvOpenAI && !hasEnvGemini ? 'openai' : 'gemini');
     setAiProvider(savedProvider);
 
-    // Backward compatibility check
-    const savedKey = localStorage.getItem('ai_api_key') || localStorage.getItem('gemini_api_key') || '';
+    // Backward compatibility check or env key fallback
+    const savedKey = localStorage.getItem('ai_api_key') || 
+                     localStorage.getItem('gemini_api_key') || 
+                     (savedProvider === 'gemini' 
+                       ? (hasEnvGemini ? envGeminiKey : '') 
+                       : (hasEnvOpenAI ? envOpenAIKey : ''));
     setApiKey(savedKey);
 
     const savedVoice = localStorage.getItem('tts_voice_name') || '';
@@ -81,9 +92,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, o
             <select
               value={aiProvider}
               onChange={(e) => {
-                setAiProvider(e.target.value);
-                // Clear input key if switching and previous key was saved for the other
-                setApiKey('');
+                const newProvider = e.target.value;
+                setAiProvider(newProvider);
+                
+                // Check env variables
+                const envGeminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+                const envOpenAIKey = import.meta.env.VITE_OPENAI_API_KEY;
+                const hasEnvGemini = envGeminiKey && envGeminiKey !== 'your_gemini_api_key_here';
+                const hasEnvOpenAI = envOpenAIKey && envOpenAIKey !== 'your_openai_api_key_here';
+
+                // Load key for the selected provider (localStorage or env)
+                const storedProvider = localStorage.getItem('ai_provider') || 'gemini';
+                const savedKey = storedProvider === newProvider
+                  ? (localStorage.getItem('ai_api_key') || localStorage.getItem('gemini_api_key') || '')
+                  : '';
+                  
+                if (savedKey) {
+                  setApiKey(savedKey);
+                } else {
+                  const envKey = newProvider === 'gemini' ? envGeminiKey : envOpenAIKey;
+                  const hasEnv = newProvider === 'gemini' ? hasEnvGemini : hasEnvOpenAI;
+                  setApiKey(hasEnv ? envKey : '');
+                }
               }}
               className="setting-select"
               style={{ marginBottom: '16px' }}

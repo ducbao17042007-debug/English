@@ -113,8 +113,20 @@ export const Chatbot: React.FC = () => {
     setInputText('');
     setIsLoading(true);
 
-    const aiProvider = localStorage.getItem('ai_provider') || 'gemini';
-    const apiKey = localStorage.getItem('ai_api_key') || localStorage.getItem('gemini_api_key') || '';
+    // Check if an API key is available in environment variables (.env)
+    const envGeminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const envOpenAIKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const hasEnvGemini = envGeminiKey && envGeminiKey !== 'your_gemini_api_key_here';
+    const hasEnvOpenAI = envOpenAIKey && envOpenAIKey !== 'your_openai_api_key_here';
+
+    const aiProvider = localStorage.getItem('ai_provider') || 
+                       (hasEnvOpenAI && !hasEnvGemini ? 'openai' : 'gemini');
+
+    const apiKey = localStorage.getItem('ai_api_key') || 
+                   localStorage.getItem('gemini_api_key') || 
+                   (aiProvider === 'gemini' 
+                     ? (hasEnvGemini ? envGeminiKey : '') 
+                     : (hasEnvOpenAI ? envOpenAIKey : ''));
 
     try {
       const aiService = AIServiceFactory.getAIService(aiProvider, apiKey);
